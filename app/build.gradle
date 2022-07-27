@@ -7,7 +7,7 @@ android {
     compileSdk 32
 
     defaultConfig {
-        applicationId "com.manamana.iot.dynamicload"
+        applicationId "com.ba.ex.dynamicload"
         minSdk 21
         targetSdk 32
         versionCode 1

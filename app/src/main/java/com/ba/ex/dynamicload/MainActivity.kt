@@ -4,7 +4,6 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.manamana.iot.dynamicload.R
 import dalvik.system.DexClassLoader
 import java.io.File
 import java.lang.reflect.InvocationTargetException
@@ -13,25 +12,28 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        byDex()
+//        byInstall()
     }
 
     fun byDex() {
-        val fileApkDir = File(filesDir.absolutePath, "ex")
+        val fileApkDir = File(filesDir.canonicalPath, "ex")
         if (!fileApkDir.exists()) {
             fileApkDir.mkdirs()
         }
 
         val lib = File(fileApkDir, "lib/" + "arm64-v8a")
-        Log.d(">>>", "lib path = ${lib.absolutePath}")
+        Log.d(">>>", "lib path = ${lib.path}")
         if (!lib.exists()) {
             lib.mkdirs()
         }
 
-        val apk = fileApkDir.absolutePath + "/test.apk"
-        val localClassLoader = ClassLoader.getSystemClassLoader()
-        val load = DexClassLoader(apk, fileApkDir.absolutePath, lib.absolutePath, localClassLoader)
-        invoke(load)
+        val apk = File(filesDir.canonicalPath,"ex/test.apk")
+        Log.d(">>>", "apk path = ${apk.absolutePath}, ${apk.exists()}")
 
+        val localClassLoader = ClassLoader.getSystemClassLoader()
+        val load = DexClassLoader(apk.absolutePath, fileApkDir.absolutePath, lib.absolutePath, localClassLoader)
+        invoke(load)
     }
 
     fun byInstall() {
