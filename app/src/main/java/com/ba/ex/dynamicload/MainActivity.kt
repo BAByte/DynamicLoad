@@ -1,5 +1,6 @@
 package com.ba.ex.dynamicload
 
+import android.content.Context
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -44,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         invoke(context.classLoader)
     }
 
+    //测试获取类，然后执行方法
     fun invoke(loader: ClassLoader) {
         try {
             val clazz = loader.loadClass("com.babyte.banativecrash.Test")
@@ -51,6 +53,54 @@ class MainActivity : AppCompatActivity() {
             val mt = clazz.getMethod("getInt")
             val i = mt.invoke(clazz.newInstance()) as Int
             Log.e(">>>", i.toString() + "")
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        } catch (e: ClassNotFoundException) {
+            e.printStackTrace()
+        } catch (e: IllegalAccessException) {
+            e.printStackTrace()
+        } catch (e: InstantiationException) {
+            e.printStackTrace()
+        } catch (e: NoSuchMethodException) {
+            e.printStackTrace()
+        } catch (e: InvocationTargetException) {
+            e.printStackTrace()
+        }
+    }
+
+    //测试获取资源
+    fun invoke(remoteContext: Context, loader: ClassLoader) {
+        try {
+            val clazz = loader.loadClass("com.manamana.iot.padiot.ui.widget.views.FlowBackButton")
+            Log.e(">>>", clazz.name)
+            val layout_flow_back_button = remoteContext.getResources()
+                .getIdentifier("layout_flow_back_button", "layout", remoteContext.packageName)
+            val btn_back_system_press = remoteContext.getResources()
+                .getIdentifier("btn_back_system_press", "drawable", remoteContext.packageName)
+            val btn_back_system_nor = remoteContext.getResources()
+                .getIdentifier("btn_back_system_nor", "drawable", remoteContext.packageName)
+
+            Log.e(">>>", "$layout_flow_back_button, $btn_back_system_press, $btn_back_system_nor")
+
+            val initFlowBack = clazz.getMethod(
+                "initFlowBack",
+                Context::class.java,
+                Int::class.java,
+                Int::class.java,
+                Int::class.java
+            )
+            val floatBtn = clazz.newInstance()
+            initFlowBack.invoke(
+                floatBtn,
+                remoteContext,
+                layout_flow_back_button,
+                btn_back_system_press,
+                btn_back_system_nor
+            )
+            val showFlowBack = clazz.getMethod("showFlowBack", Context::class.java, Int::class.java)
+            val size_7a = remoteContext.getResources()
+                .getIdentifier("size_7a", "dimen", remoteContext.packageName)
+            showFlowBack.invoke(floatBtn,remoteContext,size_7a)
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
         } catch (e: ClassNotFoundException) {
