@@ -29,12 +29,17 @@ class MainActivity : AppCompatActivity() {
             lib.mkdirs()
         }
 
-        val apk = File(filesDir.canonicalPath,"ex/test.apk")
+        val apk = File(filesDir.canonicalPath, "ex/test.apk")
         Log.d(">>>", "apk path = ${apk.absolutePath}, ${apk.exists()}")
 
         val localClassLoader = ClassLoader.getSystemClassLoader()
-        val load = DexClassLoader(apk.absolutePath, fileApkDir.absolutePath, lib.absolutePath, localClassLoader)
-        invoke(load)
+        val load = DexClassLoader(
+            apk.absolutePath,
+            fileApkDir.absolutePath,
+            lib.absolutePath,
+            localClassLoader
+        )
+        invokeNor(this, load)
     }
 
     fun byInstall() {
@@ -42,11 +47,11 @@ class MainActivity : AppCompatActivity() {
             "com.babyte.banativecrash",
             CONTEXT_INCLUDE_CODE or CONTEXT_IGNORE_SECURITY
         )
-        invoke(context.classLoader)
+        invokeNor(context, context.classLoader)
     }
 
     //测试获取类，然后执行方法
-    fun invoke(loader: ClassLoader) {
+    fun invokeNor(remoteContext: Context, loader: ClassLoader) {
         try {
             val clazz = loader.loadClass("com.babyte.banativecrash.Test")
             Log.e(">>>", clazz.name)
@@ -69,9 +74,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     //测试获取资源
-    fun invoke(remoteContext: Context, loader: ClassLoader) {
+    fun invokeResource(remoteContext: Context, loader: ClassLoader) {
         try {
-            val clazz = loader.loadClass("com.manamana.iot.padiot.ui.widget.views.FlowBackButton")
+            val clazz = loader.loadClass("xxx.widget.views.FlowBackButton")
             Log.e(">>>", clazz.name)
             val layout_flow_back_button = remoteContext.getResources()
                 .getIdentifier("layout_flow_back_button", "layout", remoteContext.packageName)
@@ -97,10 +102,18 @@ class MainActivity : AppCompatActivity() {
                 btn_back_system_press,
                 btn_back_system_nor
             )
+
+            val params = Array<Any?>(2) {
+                null
+            }
+
             val showFlowBack = clazz.getMethod("showFlowBack", Context::class.java, Int::class.java)
             val size_7a = remoteContext.getResources()
                 .getIdentifier("size_7a", "dimen", remoteContext.packageName)
-            showFlowBack.invoke(floatBtn,remoteContext,size_7a)
+            params[0] = remoteContext
+            params[1] = size_7a
+
+            showFlowBack.invoke(floatBtn, *params)
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
         } catch (e: ClassNotFoundException) {
@@ -115,4 +128,5 @@ class MainActivity : AppCompatActivity() {
             e.printStackTrace()
         }
     }
+
 }
